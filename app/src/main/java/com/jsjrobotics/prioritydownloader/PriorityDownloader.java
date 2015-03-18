@@ -4,12 +4,10 @@ import android.util.Log;
 
 import com.jsjrobotics.prioritydownloader.downloader.DownloadRequest;
 import com.jsjrobotics.prioritydownloader.downloader.DownloadThread;
-import com.jsjrobotics.prioritydownloader.downloader.Downloader;
 
 import java.io.File;
-import java.util.LinkedList;
-import java.util.PriorityQueue;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.PriorityBlockingQueue;
 
 public class PriorityDownloader {
@@ -22,7 +20,7 @@ public class PriorityDownloader {
             while (!interrupted()){
                 try {
                     DownloadRequest request = queuedRequests.take();
-                    executor.submit(new DownloadThread(request.getThreadName(),request));
+                    executor.execute(new DownloadThread(request.getRequestName(), request));
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                     Log.e(TAG,"Interrupted while trying to take a request");
@@ -33,7 +31,8 @@ public class PriorityDownloader {
 
     public PriorityDownloader(){
         enableHttpResponseCache();
-        this.executor = DefaultExecutorService.newCachedThreadPool();
+        //this.executor = DefaultExecutorService.newCachedThreadPool();
+        this.executor = DefaultExecutorService.newFixedThreadPool(4);
         pollingThread.start();
     }
 
@@ -45,7 +44,7 @@ public class PriorityDownloader {
 
     public void queueRequest(final DownloadRequest request){
         if(request.getPriority() == Priorities.URGENT){
-            DownloadThread t = new DownloadThread(TAG+":Urgent:"+request.getThreadName(),request);
+            DownloadThread t = new DownloadThread(TAG+":Urgent:"+request.getRequestName(),request);
             t.start();
         }
         else{

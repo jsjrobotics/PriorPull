@@ -16,9 +16,20 @@ public class DefaultExecutorService {
      * for a thread to be freed
      * @return
      */
-    public static ExecutorService newCachedThreadPool() {
-        return new ThreadPoolExecutor(0, 4,
-                60L, TimeUnit.SECONDS,
+    public static ExecutorService newCachedThreadPool(int nThreads) {
+        return new ThreadPoolExecutor(nThreads, nThreads,
+                30L, TimeUnit.SECONDS,
                 new LinkedBlockingQueue<Runnable>(), new DownloadThreadFactory());
+    }
+
+    /**
+     * Extends default fixed thread pool to terminate threads after 30 seconds of idle
+     * @param nThreads
+     * @return
+     */
+    public static ExecutorService newFixedThreadPool(int nThreads) {
+        return new ThreadPoolExecutor(nThreads, nThreads,
+                30L, TimeUnit.SECONDS,
+                new LinkedBlockingQueue<Runnable>());
     }
 }

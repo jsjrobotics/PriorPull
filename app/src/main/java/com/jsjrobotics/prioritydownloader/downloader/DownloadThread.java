@@ -2,6 +2,7 @@ package com.jsjrobotics.prioritydownloader.downloader;
 
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 
 import java.io.InputStream;
 
@@ -27,6 +28,7 @@ public class DownloadThread extends Thread {
 
     @Override
     public void run(){
+        Log.e(TAG, "Executing: " + request.getRequestName());
         Downloader downloader = new Downloader();
         if(request.downloadAsInputStream()){
             InputStream inputStream = downloader.downloadAsInputStream(request.getUrl());

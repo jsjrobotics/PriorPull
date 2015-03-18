@@ -11,12 +11,12 @@ public class DownloadRequest {
     private final Handler handler;
     private final int messageWhat;
     private final Priorities priority;
-    private final String threadName;
+    private final String requestName;
 
 
-    public DownloadRequest(InputStreamReceiver inputStreamReceiver, String url, Priorities priority, String threadName){
+    public DownloadRequest(InputStreamReceiver inputStreamReceiver, String url, Priorities priority, String requestName){
         this.priority = priority;
-        this.threadName = threadName;
+        this.requestName = requestName;
         this.downloadAsInputStream = true;
         this.url = url;
         this.inputStreamReceiver = inputStreamReceiver;
@@ -24,9 +24,9 @@ public class DownloadRequest {
         messageWhat = -1;
     }
 
-    public DownloadRequest(Handler receivingHandler, int messageWhat, String url, Priorities priority, String threadName){
+    public DownloadRequest(Handler receivingHandler, int messageWhat, String url, Priorities priority, String requestName){
         this.priority = priority;
-        this.threadName = threadName;
+        this.requestName = requestName;
         this.downloadAsInputStream = false;
         this.url = url;
         this.inputStreamReceiver = null;
@@ -58,7 +58,7 @@ public class DownloadRequest {
         return priority;
     }
 
-    public String getThreadName() {
-        return threadName;
+    public String getRequestName() {
+        return requestName;
     }
 }
