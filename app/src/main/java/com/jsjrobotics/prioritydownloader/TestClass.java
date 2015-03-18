@@ -10,6 +10,8 @@ import com.jsjrobotics.prioritydownloader.downloader.Downloader;
 import com.jsjrobotics.prioritydownloader.downloader.InputStreamReceiver;
 
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TestClass extends Activity {
     private static final String TAG = "TestClass";
@@ -23,14 +25,68 @@ public class TestClass extends Activity {
 
     public void testPriorityDownloader(){
         downloader = new PriorityDownloader();
+        List<DownloadRequest> requestList = new ArrayList<>();
         DownloadRequest reqeust = new DownloadRequest(new InputStreamReceiver() {
             @Override
             public void receiveInputStream(InputStream stream) {
                 Log.e("ApplicationTest", "Received inputstream");
             }
-        },"https://developer.android.com/training/basics/network-ops/connecting.html",Priorities.HIGH,"test");
-        downloader.queueRequest(reqeust);
-        Log.e(TAG,"---------Request queued--------------");
+        },"https://developer.android.com/training/basics/network-ops/connecting.html",Priorities.HIGH,"HIGHtest1");
+        requestList.add(reqeust);
+
+        DownloadRequest reqeust2 = new DownloadRequest(new InputStreamReceiver() {
+            @Override
+            public void receiveInputStream(InputStream stream) {
+                Log.e("ApplicationTest", "Received inputstream");
+            }
+        },"https://developer.android.com/training/basics/network-ops/connecting.html",Priorities.HIGH,"HIGHtest2");
+        requestList.add(reqeust2);
+
+        DownloadRequest reqeust3 = new DownloadRequest(new InputStreamReceiver() {
+            @Override
+            public void receiveInputStream(InputStream stream) {
+                Log.e("ApplicationTest", "Received inputstream");
+            }
+        },"https://developer.android.com/training/basics/network-ops/connecting.html",Priorities.MEDIUM,"Mediumtest1");
+        requestList.add(reqeust3);
+
+        DownloadRequest reqeust4 = new DownloadRequest(new InputStreamReceiver() {
+            @Override
+            public void receiveInputStream(InputStream stream) {
+                Log.e("ApplicationTest", "Received inputstream");
+            }
+        },"https://developer.android.com/training/basics/network-ops/connecting.html",Priorities.MEDIUM,"Mediumtest2");
+        requestList.add(reqeust4);
+
+        DownloadRequest reqeust5 = new DownloadRequest(new InputStreamReceiver() {
+            @Override
+            public void receiveInputStream(InputStream stream) {
+                Log.e("ApplicationTest", "Received inputstream");
+            }
+        },"https://developer.android.com/training/basics/network-ops/connecting.html",Priorities.LOW,"Lowtest1");
+        requestList.add(reqeust5);
+
+        DownloadRequest reqeust6 = new DownloadRequest(new InputStreamReceiver() {
+            @Override
+            public void receiveInputStream(InputStream stream) {
+                Log.e("ApplicationTest", "Received inputstream");
+            }
+        },"https://developer.android.com/training/basics/network-ops/connecting.html",Priorities.LOW,"Lowtest2");
+        requestList.add(reqeust6);
+
+        for(int index = 0; index < 10; index++) {
+            DownloadRequest urgent = new DownloadRequest(new InputStreamReceiver() {
+                @Override
+                public void receiveInputStream(InputStream stream) {
+                    Log.e("ApplicationTest", "Received inputstream");
+                }
+            }, "https://developer.android.com/training/basics/network-ops/connecting.html", Priorities.URGENT, "UrgentTest:"+index);
+            requestList.add(urgent);
+        }
+        for(DownloadRequest r : requestList) {
+            downloader.queueRequest(reqeust);
+            Log.e(TAG, "---------Request "+r.getRequestName()+" queued--------------");
+        }
     }
 
     public void testDownloadSingleUrl(){
