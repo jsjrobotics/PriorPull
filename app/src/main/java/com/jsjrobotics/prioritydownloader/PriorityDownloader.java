@@ -12,9 +12,10 @@ import java.util.concurrent.PriorityBlockingQueue;
 public class PriorityDownloader {
     private static final String TAG = "PriorityDownloader";
     private PriorityBlockingQueue<DownloadRequest> queuedRequests = new PriorityBlockingQueue<>(10,new DownloadRequestComparator());
-    private int runningThreadCount = 0;
     private int maxRunningThreads = 4;
     private Thread pollingThread = new Thread(){
+        private int runningThreadCount = 0;
+
         @Override
         public void run(){
             while (!interrupted()){
@@ -26,6 +27,7 @@ public class PriorityDownloader {
                     runningThreadCount += 1;
                     final DownloadRequest request = queuedRequests.take();
                     Log.e(TAG,"---------Request "+request.getRequestName()+" dequeued--------------");
+                    queuedRequests.remove(request);
                     Thread t = new Thread(){
                         @Override
                         public void run(){

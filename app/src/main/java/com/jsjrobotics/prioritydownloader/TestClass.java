@@ -84,7 +84,7 @@ public class TestClass extends Activity {
             requestList.add(urgent);
         }
         for(DownloadRequest r : requestList) {
-            downloader.queueRequest(reqeust);
+            downloader.queueRequest(r);
             Log.e(TAG, "---------Request "+r.getRequestName()+" queued--------------");
         }
     }
