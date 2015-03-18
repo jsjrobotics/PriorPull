@@ -28,7 +28,7 @@ public class DownloadThread extends Thread {
 
     @Override
     public void run(){
-        Log.e(TAG,"Executing: "+request.getRequestName());
+        Log.e(TAG, "Executing: " + request.getRequestName());
         Downloader downloader = new Downloader();
         if(request.downloadAsInputStream()){
             InputStream inputStream = downloader.downloadAsInputStream(request.getUrl());

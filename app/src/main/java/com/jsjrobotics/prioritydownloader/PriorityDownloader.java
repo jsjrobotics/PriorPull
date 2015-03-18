@@ -7,6 +7,7 @@ import com.jsjrobotics.prioritydownloader.downloader.DownloadThread;
 
 import java.io.File;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.PriorityBlockingQueue;
 
 public class PriorityDownloader {
@@ -20,23 +21,8 @@ public class PriorityDownloader {
         public void run(){
             while (!interrupted()){
                 try {
-                    if(runningThreadCount >=  maxRunningThreads){
-                        Thread.sleep(40,0);
-                        continue;
-                    }
-                    runningThreadCount += 1;
-                    final DownloadRequest request = queuedRequests.take();
-                    Log.e(TAG,"---------Request "+request.getRequestName()+" dequeued--------------");
-                    queuedRequests.remove(request);
-                    Thread t = new Thread(){
-                        @Override
-                        public void run(){
-                            DownloadThread downloadThread = new DownloadThread(request.getRequestName(), request);
-                            downloadThread.run();
-                            runningThreadCount -= 1;
-                        }
-                    };
-                    t.start();
+                    DownloadRequest request = queuedRequests.take();
+                    executor.execute(new DownloadThread(request.getRequestName(), request));
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                     Log.e(TAG,"Interrupted while trying to take a request");
@@ -46,7 +32,10 @@ public class PriorityDownloader {
     };
 
     public PriorityDownloader(){
-        init();
+        enableHttpResponseCache();
+        //this.executor = DefaultExecutorService.newCachedThreadPool();
+        this.executor = DefaultExecutorService.newFixedThreadPool(4);
+        pollingThread.start();
     }
 
     public PriorityDownloader(int maxRunningThreads){
