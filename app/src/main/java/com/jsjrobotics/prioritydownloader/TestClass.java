@@ -18,9 +18,7 @@ public class TestClass extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
-
-
-
+        testPriorityDownloader();
     }
 
     public void testPriorityDownloader(){
@@ -32,6 +30,7 @@ public class TestClass extends Activity {
             }
         },"https://developer.android.com/training/basics/network-ops/connecting.html",Priorities.HIGH,"test");
         downloader.queueRequest(reqeust);
+        Log.e(TAG,"---------Request queued--------------");
     }
 
     public void testDownloadSingleUrl(){

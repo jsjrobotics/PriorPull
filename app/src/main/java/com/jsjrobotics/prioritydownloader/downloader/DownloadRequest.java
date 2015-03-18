@@ -58,7 +58,7 @@ public class DownloadRequest {
         return priority;
     }
 
-    public String getThreadName() {
+    public String getRequestName() {
         return threadName;
     }
 }
