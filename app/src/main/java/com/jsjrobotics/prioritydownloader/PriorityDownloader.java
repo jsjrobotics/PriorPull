@@ -12,11 +12,9 @@ import java.util.concurrent.PriorityBlockingQueue;
 
 public class PriorityDownloader {
     private static final String TAG = "PriorityDownloader";
+    private final ExecutorService executor;
     private PriorityBlockingQueue<DownloadRequest> queuedRequests = new PriorityBlockingQueue<>(10,new DownloadRequestComparator());
-    private int maxRunningThreads = 4;
     private Thread pollingThread = new Thread(){
-        private int runningThreadCount = 0;
-
         @Override
         public void run(){
             while (!interrupted()){
@@ -31,15 +29,18 @@ public class PriorityDownloader {
         }
     };
 
+    public PriorityDownloader(ExecutorService executor){
+        this.executor = executor;
+        init();
+    }
+
     public PriorityDownloader(){
-        enableHttpResponseCache();
-        //this.executor = DefaultExecutorService.newCachedThreadPool();
         this.executor = DefaultExecutorService.newFixedThreadPool(4);
-        pollingThread.start();
+        init();
     }
 
     public PriorityDownloader(int maxRunningThreads){
-        this.maxRunningThreads = maxRunningThreads;
+        this.executor = DefaultExecutorService.newCachedThreadPool(maxRunningThreads);
         init();
     }
 
@@ -47,6 +48,11 @@ public class PriorityDownloader {
         enableHttpResponseCache();
         pollingThread.start();
     }
+
+    /**
+     * Queue a download request onto an available background thread
+     * @param request
+     */
     public void queueRequest(final DownloadRequest request){
         if(request.getPriority() == Priorities.URGENT){
             DownloadThread t = new DownloadThread(TAG+":Urgent:"+request.getRequestName(),request);

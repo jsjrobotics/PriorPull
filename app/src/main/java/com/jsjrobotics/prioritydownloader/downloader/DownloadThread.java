@@ -39,7 +39,7 @@ public class DownloadThread extends Thread {
             }
         }
         else{
-            String result = downloader.downloadAsString(request.getUrl());
+            Object result = downloader.downloadAndConvertInputStream(request.getUrl(),request.getConverter());
             Handler h = request.getHandler();
             Message msg = h.obtainMessage(request.getMessageWhat(),result);
             h.sendMessage(msg);

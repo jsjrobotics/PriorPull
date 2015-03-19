@@ -3,11 +3,16 @@ package com.jsjrobotics.prioritydownloader;
 import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Looper;
+import android.os.Message;
 import android.util.Log;
 
 import com.jsjrobotics.prioritydownloader.downloader.DownloadRequest;
 import com.jsjrobotics.prioritydownloader.downloader.Downloader;
 import com.jsjrobotics.prioritydownloader.downloader.InputStreamReceiver;
+import com.jsjrobotics.prioritydownloader.downloader.InputStreamToObjectConverters;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -15,15 +20,48 @@ import java.util.List;
 
 public class TestClass extends Activity {
     private static final String TAG = "TestClass";
+    private static final String TEST_URL_1 = "https://developer.android.com/training/basics/network-ops/connecting.html" ;
     private PriorityDownloader downloader;
 
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
-        testPriorityDownloader();
+        testThreadTargeting();
     }
 
-    public void testPriorityDownloader(){
+    public void testThreadTargeting(){
+        downloader = new PriorityDownloader();
+        Handler mainThreadHandler = new Handler(){
+            @Override
+            public void handleMessage(Message msg){
+                if(Looper.getMainLooper().equals(Looper.myLooper())){
+                    Log.e(TAG,"Success on landing on the main thread");
+                }
+                else{
+                    Log.e(TAG,"FAILURE on landing on the main thread");
+                }
+            }
+        };
+        DownloadRequest request = new DownloadRequest(mainThreadHandler,0, InputStreamToObjectConverters.getStringConverter(),TEST_URL_1,Priorities.LOW,"main handler test");
+
+        HandlerThread t = new HandlerThread("Background Thread");
+        t.start();
+        Handler backgroundHandler = new Handler(t.getLooper()){
+            @Override
+            public void handleMessage(Message msg){
+                if(Looper.getMainLooper().equals(Looper.myLooper())){
+                    Log.e(TAG,"FAILURE on landing on the background thread");
+                }
+                else{
+                    Log.e(TAG,"Success on landing on the background thread");
+                }
+            }
+        };
+        DownloadRequest backgroundRequest = new DownloadRequest(backgroundHandler,0, InputStreamToObjectConverters.getStringConverter(),TEST_URL_1,Priorities.HIGH,"background handler test");
+        downloader.queueRequest(request);
+        downloader.queueRequest(backgroundRequest);
+    }
+    public void testDownloadInCorrectPriority(){
         downloader = new PriorityDownloader();
         List<DownloadRequest> requestList = new ArrayList<>();
         DownloadRequest reqeust = new DownloadRequest(new InputStreamReceiver() {

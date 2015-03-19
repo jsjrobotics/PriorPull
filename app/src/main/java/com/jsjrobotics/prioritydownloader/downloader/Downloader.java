@@ -7,12 +7,8 @@ import android.util.Log;
 
 import com.jsjrobotics.prioritydownloader.PriorityDownloaderApp;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -33,34 +29,25 @@ public class Downloader {
 
     public String downloadAsString(String url){
         InputStream inputStream = downloadUrl(url);
-        String result = streamToString(inputStream);
+        InputStreamToObject<String> stringConverter = InputStreamToObjectConverters.getStringConverter();
+        String result = stringConverter.convertInputStreamToObject(inputStream);
+        closeInputStream(inputStream);
+        return result;
+    }
+
+    public Object downloadAndConvertInputStream(String url, InputStreamToObject converter){
+        if(converter == null){
+            Log.e(TAG, "Invalid parameters in downloadAndConvertInputStream");
+            return null;
+        }
+        InputStream inputStream = downloadUrl(url);
+        Object result = converter.convertInputStreamToObject(inputStream);
         closeInputStream(inputStream);
         return result;
     }
 
     public InputStream downloadAsInputStream(String url){
         return downloadUrl(url);
-    }
-
-    private String streamToString(InputStream stream) {
-        StringBuilder builder = new StringBuilder();
-        Reader reader = null;
-        try {
-            reader = new InputStreamReader(stream, "UTF-8");
-            char[] buffer = new char[30];
-            while (reader.read(buffer) != -1){
-                builder.append(buffer);
-            }
-            return builder.toString();
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-            Log.e(TAG,"Unsupported Encoding exception");
-            return null;
-        } catch (IOException e) {
-            e.printStackTrace();
-            Log.e(TAG,"IOException");
-            return null;
-        }
     }
 
     private InputStream downloadUrl(String urlToDownload){
