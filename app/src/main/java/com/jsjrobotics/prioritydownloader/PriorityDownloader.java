@@ -1,5 +1,7 @@
 package com.jsjrobotics.prioritydownloader;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
 import android.util.Log;
 
 import com.jsjrobotics.prioritydownloader.downloader.DownloadRequest;
@@ -7,20 +9,20 @@ import com.jsjrobotics.prioritydownloader.downloader.DownloadThread;
 
 import java.io.File;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.PriorityBlockingQueue;
 
 public class PriorityDownloader {
     private static final String TAG = "PriorityDownloader";
     private final ExecutorService executor;
     private PriorityBlockingQueue<DownloadRequest> queuedRequests = new PriorityBlockingQueue<>(10,new DownloadRequestComparator());
+    private final ConnectivityManager connMgr;
     private Thread pollingThread = new Thread(){
         @Override
         public void run(){
             while (!interrupted()){
                 try {
                     DownloadRequest request = queuedRequests.take();
-                    executor.execute(new DownloadThread(request.getRequestName(), request));
+                    executor.execute(new DownloadThread(request.getRequestName(), request, connMgr));
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                     Log.e(TAG,"Interrupted while trying to take a request");
@@ -28,18 +30,25 @@ public class PriorityDownloader {
             }
         }
     };
+    private final File externalCacheDir;
 
-    public PriorityDownloader(ExecutorService executor){
+    public PriorityDownloader(ExecutorService executor, ConnectivityManager connMgr, File externalCacheDir){
         this.executor = executor;
+        this.connMgr = connMgr;
+        this.externalCacheDir = externalCacheDir;
         init();
     }
 
-    public PriorityDownloader(){
+    public PriorityDownloader(ConnectivityManager connMgr, File externalCacheDir){
+        this.connMgr = connMgr;
+        this.externalCacheDir = externalCacheDir;
         this.executor = DefaultExecutorService.newFixedThreadPool(4);
         init();
     }
 
-    public PriorityDownloader(int maxRunningThreads){
+    public PriorityDownloader(int maxRunningThreads, ConnectivityManager connMgr, File externalCacheDir){
+        this.connMgr = connMgr;
+        this.externalCacheDir = externalCacheDir;
         this.executor = DefaultExecutorService.newCachedThreadPool(maxRunningThreads);
         init();
     }
@@ -55,7 +64,7 @@ public class PriorityDownloader {
      */
     public void queueRequest(final DownloadRequest request){
         if(request.getPriority() == Priorities.URGENT){
-            DownloadThread t = new DownloadThread(TAG+":Urgent:"+request.getRequestName(),request);
+            DownloadThread t = new DownloadThread(TAG+":Urgent:"+request.getRequestName(),request, connMgr);
             t.start();
         }
         else{
@@ -84,11 +93,10 @@ public class PriorityDownloader {
     }
 
     private File getCacheDir() {
-        File externalDir = PriorityDownloaderApp.getContext().getExternalCacheDir();
-        if(externalDir == null){
+        if(externalCacheDir == null){
             return null;
         }
-        File cacheDir = new File(externalDir, "httpCache");
+        File cacheDir = new File(externalCacheDir, "httpCache");
         if(!cacheDir.exists()){
             cacheDir.mkdir();
         }

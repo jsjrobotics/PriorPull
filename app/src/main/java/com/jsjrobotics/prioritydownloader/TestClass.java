@@ -1,7 +1,8 @@
 package com.jsjrobotics.prioritydownloader;
 
 import android.app.Activity;
-import android.os.AsyncTask;
+import android.content.Context;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -9,11 +10,14 @@ import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 
+import com.jsjrobotics.prioritydownloader.Priorities;
+import com.jsjrobotics.prioritydownloader.PriorityDownloader;
 import com.jsjrobotics.prioritydownloader.downloader.DownloadRequest;
 import com.jsjrobotics.prioritydownloader.downloader.Downloader;
 import com.jsjrobotics.prioritydownloader.downloader.InputStreamReceiver;
 import com.jsjrobotics.prioritydownloader.downloader.InputStreamToObjectConverters;
 
+import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +34,9 @@ public class TestClass extends Activity {
     }
 
     public void testThreadTargeting(){
-        downloader = new PriorityDownloader();
+        ConnectivityManager connMgr = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+        File externalDir = getExternalCacheDir();
+        downloader = new PriorityDownloader(connMgr, externalDir);
         Handler mainThreadHandler = new Handler(){
             @Override
             public void handleMessage(Message msg){
@@ -42,7 +48,7 @@ public class TestClass extends Activity {
                 }
             }
         };
-        DownloadRequest request = new DownloadRequest(mainThreadHandler,0, InputStreamToObjectConverters.getStringConverter(),TEST_URL_1,Priorities.LOW,"main handler test");
+        DownloadRequest request = new DownloadRequest(mainThreadHandler,0, InputStreamToObjectConverters.getStringConverter(),TEST_URL_1, Priorities.LOW,"main handler test");
 
         HandlerThread t = new HandlerThread("Background Thread");
         t.start();
@@ -62,7 +68,9 @@ public class TestClass extends Activity {
         downloader.queueRequest(backgroundRequest);
     }
     public void testDownloadInCorrectPriority(){
-        downloader = new PriorityDownloader();
+        ConnectivityManager connMgr = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+        File externalDir = getExternalCacheDir();
+        downloader = new PriorityDownloader( connMgr, externalDir);
         List<DownloadRequest> requestList = new ArrayList<>();
         DownloadRequest reqeust = new DownloadRequest(new InputStreamReceiver() {
             @Override
@@ -121,10 +129,12 @@ public class TestClass extends Activity {
         }
     }
     public void testDownloadSingleUrl(){
+        final ConnectivityManager connMgr = (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
+
         Thread t = new Thread(){
             @Override
             public void run(){
-                Downloader d = new Downloader();
+                Downloader d = new Downloader(connMgr);
                 String result = d.downloadAsString("https://www.google.com/search?client=ubuntu&channel=fs&q=android+manifest&ie=utf-8&oe=utf-8");
                 Log.e(TAG,result);
             }

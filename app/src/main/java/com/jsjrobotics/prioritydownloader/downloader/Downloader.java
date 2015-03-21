@@ -5,7 +5,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.util.Log;
 
-import com.jsjrobotics.prioritydownloader.PriorityDownloaderApp;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,11 +14,14 @@ import java.net.URL;
 
 public class Downloader {
     private static final String TAG = "Downloader";
+    private final ConnectivityManager connMgr;
+
+    public Downloader(ConnectivityManager manager) {
+        this.connMgr = manager;
+    }
 
 
     private boolean isOnline(){
-        PriorityDownloaderApp app = PriorityDownloaderApp.getContext();
-        ConnectivityManager connMgr = (ConnectivityManager) app.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
         boolean isWifiConn = networkInfo.isConnected();
         networkInfo = connMgr.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);

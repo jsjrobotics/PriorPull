@@ -1,5 +1,7 @@
 package com.jsjrobotics.prioritydownloader.downloader;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
@@ -9,15 +11,18 @@ import java.io.InputStream;
 public class DownloadThread extends Thread {
     private static final String TAG = "DownloadThread";
     private DownloadRequest request;
+    private final ConnectivityManager connMgr;
 
-    public DownloadThread(String name){
+    public DownloadThread(String name, ConnectivityManager connMgr){
         super(name);
+        this.connMgr = connMgr;
         request = null;
     }
 
-    public DownloadThread(String name,DownloadRequest request){
+    public DownloadThread(String name, DownloadRequest request, ConnectivityManager connMgr){
         super(name);
         this.request = request;
+        this.connMgr = connMgr;
     }
 
     public void setRequest(DownloadRequest request){
@@ -29,7 +34,7 @@ public class DownloadThread extends Thread {
     @Override
     public void run(){
         Log.e(TAG, "Executing: " + request.getRequestName());
-        Downloader downloader = new Downloader();
+        Downloader downloader = new Downloader(connMgr);
         if(request.downloadAsInputStream()){
             InputStream inputStream = downloader.downloadAsInputStream(request.getUrl());
             InputStreamReceiver receiver = request.getInputStreamReceiver();
