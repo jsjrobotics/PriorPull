@@ -8,6 +8,9 @@ import android.util.Log;
 
 import java.io.InputStream;
 
+/**
+ * A Thread to service a @{link DownloadRequest}
+ */
 public class DownloadThread extends Thread {
     private static final String TAG = "DownloadThread";
     private DownloadRequest request;

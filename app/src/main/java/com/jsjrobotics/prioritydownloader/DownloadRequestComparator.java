@@ -2,6 +2,9 @@ package com.jsjrobotics.prioritydownloader;
 
 import com.jsjrobotics.prioritydownloader.downloader.DownloadRequest;
 
+/**
+ * A comparator for download requests
+ */
 public class DownloadRequestComparator implements java.util.Comparator<DownloadRequest> {
 
 

@@ -12,6 +12,9 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+/**
+ * A downloader that uses @{link DownloadRequest} to queue downloads
+ */
 public class Downloader {
     private static final String TAG = "Downloader";
     private final ConnectivityManager connMgr;

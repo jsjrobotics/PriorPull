@@ -11,6 +11,10 @@ import java.io.File;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.PriorityBlockingQueue;
 
+/**
+ * A downloader that prioritizes url requests and uses
+ * the android http response cache if available
+ */
 public class PriorityDownloader {
     private static final String TAG = "PriorityDownloader";
     private final ExecutorService executor;

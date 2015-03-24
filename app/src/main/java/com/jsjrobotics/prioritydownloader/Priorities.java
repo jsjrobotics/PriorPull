@@ -1,6 +1,12 @@
 package com.jsjrobotics.prioritydownloader;
 
-// The ordinal values are used in sorting of priorities
+/**
+ * Priorities of a DownloadRequest
+ * Urgent spawns a thread
+ * Other priorities will be downloaded in order according
+ * to their ordinal number, lowest first
+ *
+ */
 public enum Priorities {
     URGENT,
     HIGH,

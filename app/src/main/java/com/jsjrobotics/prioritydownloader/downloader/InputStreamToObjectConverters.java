@@ -9,8 +9,12 @@ import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 
 public class InputStreamToObjectConverters {
-    private static final String TAG = "ObjectToStreamConverters";
+    private static final String TAG = "Stream2ObjConverters";
 
+    /**
+     * Convert an input stream to a string
+     * @return the string represented by the inputstream or null
+     */
     public static InputStreamToObject<String> getStringConverter(){
         InputStreamToObject<String> stringConverter = new InputStreamToObject<String>() {
             @Override
