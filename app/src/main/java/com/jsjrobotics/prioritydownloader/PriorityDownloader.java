@@ -35,6 +35,7 @@ public class PriorityDownloader {
         }
     };
     private final File externalCacheDir;
+    private String cacheFolderName = "httpCache";
 
     public PriorityDownloader(ExecutorService executor, ConnectivityManager connMgr, File externalCacheDir){
         this.executor = executor;
@@ -100,10 +101,15 @@ public class PriorityDownloader {
         if(externalCacheDir == null){
             return null;
         }
-        File cacheDir = new File(externalCacheDir, "httpCache");
+        File cacheDir = new File(externalCacheDir, cacheFolderName);
         if(!cacheDir.exists()){
             cacheDir.mkdir();
         }
         return cacheDir;
+    }
+
+    public boolean deleteCacheDir(){
+        File dir = getCacheDir();
+        return dir.delete();
     }
 }
