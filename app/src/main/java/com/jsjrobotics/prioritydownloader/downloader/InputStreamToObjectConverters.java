@@ -23,8 +23,10 @@ public class InputStreamToObjectConverters {
                 try {
                     Reader reader = new InputStreamReader(stream, "UTF-8");
                     char[] buffer = new char[30];
-                    while (reader.read(buffer) != -1) {
-                        builder.append(buffer);
+                    int bytesRead = reader.read(buffer);
+                    while ( bytesRead != -1) {
+                        builder.append(buffer,0,bytesRead);
+                        bytesRead = reader.read(buffer);
                     }
                     return builder.toString();
                 } catch (UnsupportedEncodingException e) {
