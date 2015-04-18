@@ -26,7 +26,7 @@ public class PriorityDownloader {
             while (!interrupted()){
                 try {
                     DownloadRequest request = queuedRequests.take();
-                    executor.execute(new DownloadThread(request.getRequestName(), request, connMgr));
+                    executor.execute(new DownloadThread(request, connMgr));
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                     Log.e(TAG,"Interrupted while trying to take a request");

@@ -22,8 +22,14 @@ public class DownloadThread extends Thread {
         request = null;
     }
 
-    public DownloadThread(String name, DownloadRequest request, ConnectivityManager connMgr){
-        super(name);
+    public DownloadThread(DownloadRequest request, ConnectivityManager connMgr){
+        super(request.getRequestName());
+        this.request = request;
+        this.connMgr = connMgr;
+    }
+
+    public DownloadThread(String threadName,DownloadRequest request, ConnectivityManager connMgr){
+        super(threadName);
         this.request = request;
         this.connMgr = connMgr;
     }
@@ -31,6 +37,7 @@ public class DownloadThread extends Thread {
     public void setRequest(DownloadRequest request){
         if(!isAlive()){
             this.request = request;
+            setName(request.getRequestName());
         }
     }
 
