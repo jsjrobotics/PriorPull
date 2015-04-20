@@ -1,6 +1,5 @@
 package com.jsjrobotics.prioritydownloader;
 
-import android.content.Context;
 import android.net.ConnectivityManager;
 import android.util.Log;
 
@@ -110,6 +109,9 @@ public class PriorityDownloader {
 
     public boolean deleteCacheDir(){
         File dir = getCacheDir();
+        if(dir == null){
+            return false;
+        }
         return dir.delete();
     }
 }
