@@ -5,9 +5,15 @@ import android.util.Log;
 
 import com.jsjrobotics.prioritydownloader.downloader.DownloadRequest;
 import com.jsjrobotics.prioritydownloader.downloader.DownloadThread;
+import com.jsjrobotics.prioritydownloader.downloader.Downloader;
+import com.jsjrobotics.prioritydownloader.downloader.InputStreamReceiver;
 
 import java.io.File;
+import java.io.InputStream;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 import java.util.concurrent.PriorityBlockingQueue;
 
 /**
@@ -18,6 +24,7 @@ public class PriorityDownloader {
     private static final String TAG = "PriorityDownloader";
     private final ExecutorService executor;
     private PriorityBlockingQueue<DownloadRequest> queuedRequests = new PriorityBlockingQueue<>(10,new DownloadRequestComparator());
+
     private final ConnectivityManager connMgr;
     private Thread pollingThread = new Thread(){
         @Override
@@ -74,6 +81,37 @@ public class PriorityDownloader {
         else{
             queuedRequests.add(request);
         }
+    }
+
+    /**
+     * Return a future that will execute the download request when it is needed.
+     * There is no gurantee on when the future will be executed or how it affects priority of queued
+     * downloads
+     * @param request
+     * @return
+     */
+    public Future queueRequestFuture(final DownloadRequest request){
+        Future future = executor.submit(new Callable<Object>() {
+            @Override
+            public Object call() throws Exception {
+                Log.e(TAG, "Executing: " + request.getRequestName());
+                Downloader downloader = new Downloader(connMgr);
+                if(request.downloadAsInputStream()){
+                    InputStream inputStream = downloader.downloadAsInputStream(request.getUrl());
+                    InputStreamReceiver receiver = request.getInputStreamReceiver();
+                    if(receiver != null){
+                        receiver.receiveInputStream(inputStream);
+                        Downloader.closeInputStream(inputStream);
+                    }
+                    return inputStream;
+                }
+                else{
+                    Object result = downloader.downloadAndConvertInputStream(request.getUrl(), request.getConverter());
+                    return result;
+                }
+            }
+        });
+        return future;
     }
 
 

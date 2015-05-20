@@ -85,7 +85,7 @@ public class Downloader {
         return null;
     }
 
-    static void closeInputStream(InputStream is) {
+    public static void closeInputStream(InputStream is) {
         if (is != null) {
             try {
                 is.close();
