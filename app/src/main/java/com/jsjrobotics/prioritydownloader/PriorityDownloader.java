@@ -20,7 +20,7 @@ import java.util.concurrent.PriorityBlockingQueue;
  * A downloader that prioritizes url requests and uses
  * the android http response cache if available
  */
-public class PriorityDownloader {
+public class PriorityDownloader<T> {
     private static final String TAG = "PriorityDownloader";
     private final ExecutorService executor;
     private PriorityBlockingQueue<DownloadRequest> queuedRequests = new PriorityBlockingQueue<>(10,new DownloadRequestComparator());
@@ -90,12 +90,12 @@ public class PriorityDownloader {
      * @param request
      * @return
      */
-    public Future queueRequestFuture(final DownloadRequest request){
-        Future future = executor.submit(new Callable<Object>() {
+    public Future<T> queueRequestFuture(final DownloadRequest<T> request){
+        Future<T> future = executor.submit(new Callable<T>() {
             @Override
-            public Object call() throws Exception {
+            public T call() throws Exception {
                 Log.e(TAG, "Executing: " + request.getRequestName());
-                Downloader downloader = new Downloader(connMgr);
+                Downloader<T> downloader = new Downloader(connMgr);
                 if(request.downloadAsInputStream()){
                     InputStream inputStream = downloader.downloadAsInputStream(request.getUrl());
                     InputStreamReceiver receiver = request.getInputStreamReceiver();
@@ -103,10 +103,10 @@ public class PriorityDownloader {
                         receiver.receiveInputStream(inputStream);
                         Downloader.closeInputStream(inputStream);
                     }
-                    return inputStream;
+                    return null;
                 }
                 else{
-                    Object result = downloader.downloadAndConvertInputStream(request.getUrl(), request.getConverter());
+                    T result = downloader.downloadAndConvertInputStream(request.getUrl(), request.getConverter());
                     return result;
                 }
             }

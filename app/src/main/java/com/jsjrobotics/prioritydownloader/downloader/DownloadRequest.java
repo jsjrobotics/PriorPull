@@ -8,7 +8,7 @@ import com.jsjrobotics.prioritydownloader.Priorities;
  * A DownloadRequest that can return downloaded data as a raw stream, or an object on a
  * different thread through a handler
  */
-public class DownloadRequest {
+public class DownloadRequest<T> {
     private final boolean downloadAsInputStream;
     private final String url;
     private final InputStreamReceiver inputStreamReceiver;
@@ -16,7 +16,7 @@ public class DownloadRequest {
     private final int messageWhat;
     private final Priorities priority;
     private final String requestName;
-    private final InputStreamToObject converter;
+    private final InputStreamToObject<T> converter;
 
 
     /**
@@ -37,25 +37,7 @@ public class DownloadRequest {
         converter = null;
     }
 
-    /**
-     * Build a download request that will call send a String as the message object to the receiving
-     * handler upon download completion
-     * @param receivingHandler The handler that will receive the download complete method
-     * @param messageWhat The what of the received message
-     * @param url url to download
-     * @param priority Download request priority
-     * @param requestName Caller supplied request name
-     */
-    public DownloadRequest(Handler receivingHandler, int messageWhat, String url, Priorities priority, String requestName){
-        this.priority = priority;
-        this.requestName = requestName;
-        this.downloadAsInputStream = false;
-        this.url = url;
-        this.inputStreamReceiver = null;
-        handler = receivingHandler;
-        this.messageWhat = messageWhat;
-        converter = InputStreamToObjectConverters.getStringConverter();
-    }
+
     /**
      * Build a download request that will call send a caller specefied object as the message object to the receiving
      * handler upon download completion
@@ -66,7 +48,7 @@ public class DownloadRequest {
      * @param priority Download request priority
      * @param requestName Caller supplied request name
      */
-    public DownloadRequest(Handler receivingHandler, int messageWhat,InputStreamToObject converter, String url, Priorities priority, String requestName){
+    public DownloadRequest(Handler receivingHandler, int messageWhat,InputStreamToObject<T> converter, String url, Priorities priority, String requestName){
         this.priority = priority;
         this.requestName = requestName;
         this.downloadAsInputStream = false;
@@ -105,7 +87,7 @@ public class DownloadRequest {
         return requestName;
     }
 
-    public InputStreamToObject getConverter() {
+    public InputStreamToObject<T> getConverter() {
         return converter;
     }
 }

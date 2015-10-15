@@ -15,7 +15,7 @@ import java.net.URL;
 /**
  * A downloader that uses @{link DownloadRequest} to queue downloads
  */
-public class Downloader {
+public class Downloader<T> {
     private static final String TAG = "Downloader";
     private final ConnectivityManager connMgr;
 
@@ -40,13 +40,13 @@ public class Downloader {
         return result;
     }
 
-    public Object downloadAndConvertInputStream(String url, InputStreamToObject converter){
+    public T downloadAndConvertInputStream(String url, InputStreamToObject<T> converter){
         if(converter == null){
             Log.e(TAG, "Invalid parameters in downloadAndConvertInputStream");
             return null;
         }
         InputStream inputStream = downloadUrl(url);
-        Object result = converter.convertInputStreamToObject(inputStream);
+        T result = converter.convertInputStreamToObject(inputStream);
         closeInputStream(inputStream);
         return result;
     }
